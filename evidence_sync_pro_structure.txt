@@ -1,0 +1,240 @@
+EvidenceSync Pro - Windows-Native Forensic Correlation Engine
+Project Structure & Folder Organization
+=====================================================
+
+evidence_sync_pro/
+│
+├── README.md                          # Project overview, installation, usage
+├── LICENSE                            # Apache 2.0
+├── setup.py                           # Package installer
+├── requirements.txt                   # Dependencies (all pure-Python, Windows-compatible)
+├── .gitignore                         # Git ignore rules
+│
+├── evidence_sync_pro/                 # Main package
+│   │
+│   ├── __init__.py                    # Package initialization
+│   ├── version.py                     # Version info
+│   │
+│   ├── core/                          # Core engine
+│   │   ├── __init__.py
+│   │   ├── correlation_engine.py      # Correlation rules & logic
+│   │   ├── confidence_scorer.py       # ML-based confidence scoring
+│   │   ├── time_sync_detector.py      # Detect clock skew/tampering
+│   │   ├── artifact_manipulability.py # Database of artifact fakability scores
+│   │   └── event_normalizer.py        # Normalize timestamps/data across sources
+│   │
+│   ├── parsers/                       # Artifact parsers (pluggable architecture)
+│   │   ├── __init__.py
+│   │   ├── evtx_parser.py             # Windows Event Logs (python-evtx)
+│   │   ├── registry_parser.py         # Windows Registry (python-registry)
+│   │   ├── mft_parser.py              # MFT files (analyzeMFT integration)
+│   │   ├── prefetch_parser.py         # Prefetch files (pyscca)
+│   │   ├── amcache_parser.py          # Amcache.hve (pyesedb integration)
+│   │   ├── browser_parser.py          # Chrome/Firefox/Edge history
+│   │   ├── cloud_parser.py            # OneDrive/Google Drive metadata parser
+│   │   ├── mobile_parser.py           # iOS/Android backup parsers
+│   │   ├── slack_parser.py            # Slack SQLite databases
+│   │   ├── teams_parser.py            # Microsoft Teams IndexedDB
+│   │   └── base_parser.py             # Abstract base parser class
+│   │
+│   ├── correlation_rules/             # Pluggable correlation rules
+│   │   ├── __init__.py
+│   │   ├── ip_correlation.py          # Match IPs across sources
+│   │   ├── user_identity_correlation.py  # Match usernames/emails
+│   │   ├── timestamp_correlation.py   # Align timestamps with skew tolerance
+│   │   ├── file_hash_correlation.py   # Cross-device file hash matching
+│   │   ├── geolocation_correlation.py # Detect impossible travel (location conflicts)
+│   │   ├── url_domain_correlation.py  # Match visited domains across browsers/logs
+│   │   └── rules_loader.py            # Dynamic rule loading
+│   │
+│   ├── models/                        # Data models & ML models
+│   │   ├── __init__.py
+│   │   ├── artifact.py                # Artifact data class
+│   │   ├── event.py                   # Normalized event class
+│   │   ├── correlation_result.py      # Correlation match result
+│   │   ├── confidence_model.pkl       # Pre-trained confidence scorer (binary)
+│   │   └── manipulability_db.json     # Artifact manipulation difficulty scores
+│   │
+│   ├── ui/                            # GUI (PyQt6)
+│   │   ├── __init__.py
+│   │   ├── main_window.py             # Main application window
+│   │   ├── project_wizard.py          # Case creation wizard
+│   │   ├── evidence_importer.py       # Import artifacts/logs
+│   │   ├── timeline_viewer.py         # Visual timeline display
+│   │   ├── correlation_browser.py     # Browse correlation results
+│   │   ├── report_generator.py        # Export PDF/HTML reports
+│   │   └── widgets/                   # Custom UI widgets
+│   │       ├── timeline_widget.py
+│   │       ├── correlation_tree.py
+│   │       └── confidence_badge.py
+│   │
+│   ├── reporting/                     # Report generation
+│   │   ├── __init__.py
+│   │   ├── pdf_reporter.py            # PDF report generator
+│   │   ├── html_reporter.py           # HTML report generator
+│   │   ├── json_exporter.py           # JSON export for external tools
+│   │   ├── chain_of_custody.py        # CoC audit trail generator
+│   │   └── templates/                 # Report templates
+│   │       ├── forensic_report.html
+│   │       ├── timeline_report.html
+│   │       └── correlation_matrix.html
+│   │
+│   ├── storage/                       # Case & evidence storage
+│   │   ├── __init__.py
+│   │   ├── case_manager.py            # Case file management
+│   │   ├── evidence_store.py          # SQLite evidence database
+│   │   └── cache_manager.py           # Parsed artifact caching
+│   │
+│   ├── validation/                    # Data quality & validation
+│   │   ├── __init__.py
+│   │   ├── schema_validator.py        # Validate artifact schemas
+│   │   ├── timestamp_validator.py     # Detect clock anomalies
+│   │   └── evidence_integrity.py      # Hash verification
+│   │
+│   ├── cli/                           # Command-line interface
+│   │   ├── __init__.py
+│   │   ├── cli.py                     # Main CLI entry point
+│   │   ├── commands/                  # CLI commands
+│   │       ├── parse.py               # Parse artifacts
+│   │       ├── correlate.py           # Run correlation
+│   │       ├── report.py              # Generate report
+│   │       └── validate.py            # Validate evidence
+│   │
+│   └── utils/                         # Utility functions
+│       ├── __init__.py
+│       ├── logger.py                  # Logging setup
+│       ├── constants.py               # Global constants
+│       ├── validators.py              # Input validators
+│       └── helpers.py                 # Misc helper functions
+│
+├── tests/                             # Unit & integration tests
+│   ├── __init__.py
+│   ├── conftest.py                    # Pytest fixtures
+│   ├── test_parsers/                  # Parser tests
+│   │   ├── test_evtx_parser.py
+│   │   ├── test_registry_parser.py
+│   │   ├── test_mft_parser.py
+│   │   └── test_cloud_parser.py
+│   ├── test_correlation/              # Correlation tests
+│   │   ├── test_ip_correlation.py
+│   │   ├── test_timestamp_correlation.py
+│   │   └── test_geolocation_correlation.py
+│   ├── test_confidence/               # Confidence scoring tests
+│   │   └── test_confidence_scorer.py
+│   ├── test_ui/                       # GUI tests
+│   │   └── test_main_window.py
+│   └── test_integration/              # End-to-end tests
+│       └── test_full_pipeline.py
+│
+├── docs/                              # Documentation
+│   ├── INSTALLATION.md                # Install instructions
+│   ├── USER_GUIDE.md                  # How to use EvidenceSync Pro
+│   ├── API.md                         # API documentation
+│   ├── CORRELATION_RULES.md           # How to write custom rules
+│   ├── ARTIFACT_SPECS.md              # Artifact format specifications
+│   └── architecture/                  # Architecture docs
+│       ├── SYSTEM_DESIGN.md
+│       ├── CONFIDENCE_SCORING.md
+│       └── DATABASE_SCHEMA.md
+│
+├── data/                              # Data files
+│   ├── manipulability_db.json         # Artifact manipulation scores
+│   ├── sample_cases/                  # Sample case files
+│   │   └── sample_case_1/
+│   │       ├── evtx/
+│   │       ├── registry/
+│   │       ├── browser_history/
+│   │       └── cloud_metadata/
+│   └── test_data/                     # Test artifacts
+│       ├── evtx/
+│       ├── registry/
+│       └── mobile/
+│
+├── examples/                          # Example scripts
+│   ├── basic_correlation.py           # Simple correlation example
+│   ├── batch_processing.py            # Process multiple cases
+│   ├── custom_rule_example.py         # Write custom correlation rule
+│   └── report_generation.py           # Generate custom reports
+│
+├── scripts/                           # Utility scripts
+│   ├── train_confidence_model.py      # Train ML confidence scorer
+│   ├── build_manipulability_db.py     # Build artifact manipulation database
+│   ├── init_db.py                     # Initialize case database
+│   └── cleanup.py                     # Clean temporary files
+│
+└── config/                            # Configuration files
+    ├── default_config.yaml            # Default settings
+    ├── correlation_rules.yaml         # Enabled correlation rules
+    └── artifact_sources.yaml          # Enabled artifact types
+
+
+KEY ARCHITECTURAL NOTES:
+======================
+
+1. PARSER ARCHITECTURE (Abstract Base Pattern):
+   - All parsers inherit from base_parser.BaseParser
+   - Input: filepath or raw data
+   - Output: List[Event] normalized to common schema
+   - Each parser is independent & testable
+
+2. CORRELATION ENGINE (Rule-Based):
+   - Rules are pluggable YAML configs
+   - Each rule defines input artifact types, matching logic, confidence calculation
+   - Rules can be enabled/disabled per investigation
+   - Rules output: Correlation{source1, source2, match_type, confidence_score, evidence}
+
+3. CONFIDENCE SCORING (ML + Heuristic Hybrid):
+   - ML model (trained on forensic datasets): predicts base reliability (0-100%)
+   - Heuristics layer: applies manipulability adjustments
+   - Final score = ML_score * artifact_manipulability_factor
+   - Explainability: show which factors contributed to final score
+
+4. STORAGE (SQLite + JSON):
+   - Case metadata: SQLite (fast queries)
+   - Evidence artifacts: JSON (easy export/audit)
+   - Chain of custody: Append-only audit log
+
+5. UI/CLI DUAL INTERFACE:
+   - GUI for investigators (PyQt6, Windows-native)
+   - CLI for automation/batch processing
+   - Both share same core engine
+
+6. REPORTING (Multi-Format):
+   - PDF: Court-ready narrative + timeline
+   - HTML: Interactive timeline + correlation graph
+   - JSON: Machine-readable evidence export
+   - CSV: Spreadsheet analysis
+
+DEPENDENCIES (Pure Python, Windows-Compatible):
+===============================================
+
+Core Parsing:
+- python-evtx           # EVTX logs
+- python-registry       # Windows Registry
+- pyscca                # Prefetch files
+- pyesedb               # Amcache parsing
+- ccl_sqlite3           # SQLite artifacts
+
+Correlation & Scoring:
+- scikit-learn          # ML confidence model
+- numpy, pandas         # Data manipulation
+- python-dateutil       # Timezone handling
+
+UI:
+- PyQt6                 # Desktop GUI
+- pyqtgraph             # Timeline visualization
+
+Reporting:
+- reportlab             # PDF generation
+- jinja2                # HTML templates
+
+Utilities:
+- pyyaml                # Config files
+- sqlalchemy            # ORM for SQLite
+- loguru                # Advanced logging
+
+Development:
+- pytest                # Testing
+- pytest-cov            # Coverage
+- black                 # Code formatting
+- mypy                  # Type checking
