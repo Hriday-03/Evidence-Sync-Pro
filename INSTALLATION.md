@@ -13,7 +13,7 @@
 
 2. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/evidence-sync-pro
+git clone https://github.com/hriday-03/evidence-sync-pro
 cd evidence-sync-pro
 ```
 
