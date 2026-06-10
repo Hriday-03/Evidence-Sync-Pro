@@ -88,24 +88,31 @@ class EvtxParser(BaseParser):
             with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, registry_path) as key:
                 bias_minutes = winreg.QueryValueEx(key, "Bias")[0]
                 
-                if abs(bias_minutes) > 2000:
-                    logger.warning(f"Insane registry bias detected ({bias_minutes}). Defaulting to UTC+0.")
-                    return "UTC+0"
-
-                # Bias is negative for UTC+, positive for UTC-
-                # Convert minutes to hours
-                offset_hours = -bias_minutes / 60
-                
-                # Format as "UTC+X" or "UTC-X"
-                if offset_hours == int(offset_hours):
-                    return f"UTC{int(offset_hours):+d}"
+                # Convert 32-bit unsigned representation to signed integer if overflowed
+                if bias_minutes > 2000:
+                    logger.info(f"Unsigned 32-bit registry bias detected ({bias_minutes}). Converting to signed integer.")
+                    signed_bias = bias_minutes - 0x100000000
                 else:
-                    return f"UTC{offset_hours:+.1f}"
-                    
+                    signed_bias = bias_minutes
+                
+                # Bias is negative for UTC+, positive for UTC-
+                actual_offset_minutes = -signed_bias
+
+                # Keep this formatting math INSIDE the try block with correct indentation
+                sign = "+" if actual_offset_minutes >= 0 else "-"
+                abs_minutes = abs(actual_offset_minutes)
+                hours = abs_minutes // 60
+                minutes = abs_minutes % 60
+
+                if minutes > 0:
+                    return f"UTC{sign}{hours}:{minutes:02d}"
+                else:
+                    return f"UTC{sign}{hours}"
+
         except Exception as e:
-            logger.warning(f"Could not detect timezone: {e}")
+            logger.warning(f"Error resolving registry timezone: {e}. Defaulting to UTC+0.")
             return "UTC+0"
-        
+   
     def _normalize_event(self, raw_record) -> Optional[Event]:
         """Convert raw EVTX record to normalized Event object with defensive schema checks."""
         try:
