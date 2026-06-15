@@ -100,6 +100,10 @@ TASKS:
   1B: WINDOWS REGISTRY - Week 2, Day 3-4
       □ Build registry_parser.py
         • Parse SAM, SECURITY, SOFTWARE, SYSTEM hives
+            Bit 1: Class skeleton + SAM user extraction
+            Bit 2: NTUSER.DAT activity extraction
+            Bit 3: SYSTEM/SOFTWARE/SECURITY hive extraction
+            Bit 4: Advanced (USRCLASS.DAT, COMPONENTS)
         • Extract user login times, install timestamps, last write times
         • Map SID → username
         • Normalize to Event schema
