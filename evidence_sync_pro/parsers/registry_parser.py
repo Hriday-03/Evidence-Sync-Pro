@@ -6,7 +6,6 @@ from .base_parser import BaseParser, Event              # Our base class
 import struct                                           # For binary data unpacking (SAM V field)
 import hashlib                                          # For chain of custody (MD5/SHA256)
 from loguru import logger                               # Logging
-import json                                             # JSON serialization
 import re                                               # Regex for IP extraction
 import subprocess
 
